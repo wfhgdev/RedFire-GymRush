@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import gymRushLogo from '../../assets/webp/GymRushLogo.webp'
+import gymRushLogo from '../../assets/png/GymRushLogo.png'
 import redAvatar from '../../assets/svg/Red.svg'
 import leafAvatar from '../../assets/svg/Leaf.svg'
 import profesorOak from '../../assets/svg/ProfesorOak.svg'
@@ -287,8 +287,8 @@ export default function HomeScreen() {
                     onClick={handleConfirmName}
                     disabled={playerName.trim().length === 0}
                     className={`px-6 py-2 font-bold rounded border-2 text-xs cursor-pointer transition-all ${playerName.trim().length > 0
-                        ? 'bg-green-600 hover:bg-green-500 text-white border-green-400 shadow-md'
-                        : 'bg-slate-700 text-slate-500 border-slate-600 cursor-not-allowed'
+                      ? 'bg-green-600 hover:bg-green-500 text-white border-green-400 shadow-md'
+                      : 'bg-slate-700 text-slate-500 border-slate-600 cursor-not-allowed'
                       }`}
                   >
                     OK
