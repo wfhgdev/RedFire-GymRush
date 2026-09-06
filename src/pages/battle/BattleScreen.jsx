@@ -199,9 +199,14 @@ export default function BattleScreen() {
 
         {phase === 'battle' && (
           <div className="flex-1 flex flex-col justify-between space-y-4">
-            <div className="bg-slate-950 border-4 border-slate-800 rounded-xl p-4 flex-1 flex flex-col justify-between relative min-h-[340px]">
-              <div className="flex items-start justify-between">
-                <div className="bg-slate-900 border-2 border-slate-700 rounded-lg p-3 w-56 shadow-md">
+            <div
+              className="bg-slate-950 border-4 border-slate-800 rounded-xl p-4 flex-1 flex flex-col justify-between relative min-h-[340px] bg-cover bg-center overflow-hidden"
+              style={{ backgroundImage: `url(${currentLeader.backgroundImg})` }}
+            >
+              <div className="absolute inset-0 bg-slate-950/50 pointer-events-none"></div>
+
+              <div className="flex items-start justify-between relative z-10">
+                <div className="bg-slate-900/90 border-2 border-slate-700 rounded-lg p-3 w-56 shadow-md backdrop-blur-xs">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-xs text-white">
                       {opponentPokemon.name}
@@ -219,7 +224,7 @@ export default function BattleScreen() {
                   </span>
                 </div>
 
-                <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg">
+                <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg backdrop-blur-xs">
                   <img
                     src={brockSprite}
                     alt={currentLeader.name}
@@ -228,7 +233,8 @@ export default function BattleScreen() {
                 </div>
               </div>
 
-              <div className="flex items-end justify-between">
+              <div className="flex items-end justify-between relative z-10">
+
                 <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg">
                   <img
                     src={activePokemon.sprite}
