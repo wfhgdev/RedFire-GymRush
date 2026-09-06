@@ -1,4 +1,5 @@
 ## FireRed Gym Rush by William Hernández
+![GymRushLogo](./src/assets/webp/GymRushLogo.webp)
 
 Simulador de batalla tipo Boss  Rush basado en Pokémon Rojo Fuego, usando React, Vite, Axios, React Router DOM y Supabase.
 
