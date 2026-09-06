@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import gymRushLogo from '../../assets/svg/GymRushLogo.svg'
 import redAvatar from '../../assets/svg/Red.svg'
 import leafAvatar from '../../assets/svg/Leaf.svg'
+import profesorOak from '../../assets/svg/ProfesorOak.svg'
+import pikachuSprite from '../../assets/svg/Pikachu.svg'
+import bulbasaurSprite from '../../assets/svg/Bulbasaur.svg'
+import charmanderSprite from '../../assets/svg/Charmander.svg'
+import squirtleSprite from '../../assets/svg/Squirtle.svg'
 import './HomeScreen.css'
 
 export default function HomeScreen() {
@@ -11,6 +16,41 @@ export default function HomeScreen() {
   const [gender, setGender] = useState(null)
   const [playerName, setPlayerName] = useState('')
   const [isUpper, setIsUpper] = useState(true)
+
+  const starterTeam = [
+    {
+      name: 'Pikachu',
+      type: 'Eléctrico',
+      color: 'bg-yellow-900/60 border-yellow-500 text-yellow-300',
+      badge: 'bg-yellow-500 text-slate-950',
+      sprite: pikachuSprite,
+      desc: 'Alta velocidad y ataques de tipo Eléctrico.'
+    },
+    {
+      name: 'Bulbasaur',
+      type: 'Planta / Veneno',
+      color: 'bg-emerald-900/60 border-emerald-500 text-emerald-300',
+      badge: 'bg-emerald-500 text-slate-950',
+      sprite: bulbasaurSprite,
+      desc: 'Equilibrado con movimientos de drenado y drenaje.'
+    },
+    {
+      name: 'Charmander',
+      type: 'Fuego',
+      color: 'bg-orange-900/60 border-orange-500 text-orange-300',
+      badge: 'bg-orange-500 text-slate-950',
+      sprite: charmanderSprite,
+      desc: 'Potente ataque especial de tipo Fuego.'
+    },
+    {
+      name: 'Squirtle',
+      type: 'Agua',
+      color: 'bg-cyan-900/60 border-cyan-500 text-cyan-300',
+      badge: 'bg-cyan-500 text-slate-950',
+      sprite: squirtleSprite,
+      desc: 'Gran defensa física e hidráulica.'
+    }
+  ]
 
   const upperGrid = [
     ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
@@ -49,9 +89,7 @@ export default function HomeScreen() {
       } else if (event.key === 'Enter') {
         event.preventDefault()
         if (playerName.trim().length > 0 && gender) {
-          navigate('/battle', {
-            state: { playerName: playerName.trim(), gender }
-          })
+          setStep(4)
         }
       } else if (
         event.key.length === 1 &&
@@ -66,7 +104,7 @@ export default function HomeScreen() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [step, playerName, gender, navigate])
+  }, [step, playerName, gender])
 
   const handleGenderSelect = (selectedGender) => {
     setGender(selectedGender)
@@ -85,6 +123,12 @@ export default function HomeScreen() {
 
   const handleConfirmName = () => {
     if (playerName.trim().length > 0 && gender) {
+      setStep(4)
+    }
+  }
+
+  const handleStartBattle = () => {
+    if (playerName.trim().length > 0 && gender) {
       navigate('/battle', {
         state: { playerName: playerName.trim(), gender }
       })
@@ -93,7 +137,7 @@ export default function HomeScreen() {
 
   return (
     <main className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center p-4 scanlines select-none font-mono">
-      <div className="w-full max-w-2xl bg-slate-800 border-4 border-slate-600 rounded-xl p-6 shadow-2xl relative overflow-hidden">
+      <div className="w-full max-w-3xl bg-slate-800 border-4 border-slate-600 rounded-xl p-6 shadow-2xl relative overflow-hidden">
         {step === 1 && (
           <div className="flex flex-col items-center justify-center py-8 space-y-8 animate-fade-in">
             <div className="w-full max-w-md p-4 bg-slate-900/80 rounded-lg border-2 border-slate-700 flex justify-center">
@@ -265,6 +309,107 @@ export default function HomeScreen() {
               <span className="text-[10px] text-slate-400">
                 Usa el teclado táctil o físico para escribir
               </span>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="flex flex-col items-center space-y-6 animate-fade-in">
+            <div className="w-full bg-slate-900 border-4 border-slate-600 rounded-xl p-4 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 shadow-inner">
+              <div className="w-32 h-32 bg-slate-800 border-4 border-amber-400 rounded-lg p-2 flex items-center justify-center shrink-0 shadow-lg">
+                <img
+                  src={profesorOak}
+                  alt="Profesor Oak"
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+
+              <div className="flex-1 space-y-3">
+                <div className="bg-slate-950 border-2 border-slate-700 rounded-lg p-3">
+                  <p className="text-yellow-400 font-bold text-sm md:text-base leading-relaxed">
+                    ¡Hola, <span className="text-white">{playerName}</span>!
+                    ¡Te doy la bienvenida al desafío Pokémon Gym Rush!
+                  </p>
+                </div>
+
+                <div className="bg-slate-950/80 border border-slate-700 rounded-lg p-3 text-xs space-y-1.5 text-slate-300">
+                  <p className="font-bold text-amber-300 mb-1">
+                    Reglas del Desafío:
+                  </p>
+                  <p>
+                    • Te enfrentarás a los 8 Líderes de Gimnasio de Kanto de
+                    forma consecutiva en un Boss Rush lineal.
+                  </p>
+                  <p>
+                    • Tu equipo inicial consta de 4 Pokémon: Pikachu, Bulbasaur,
+                    Charmander y Squirtle.
+                  </p>
+                  <p>
+                    • Toda tu salud (HP) y tus PP se restaurarán automáticamente
+                    después de cada combate.
+                  </p>
+                  <p>
+                    • Dispones de un suministro limitado de Pociones para curarte
+                    durante los turnos de batalla.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full space-y-3">
+              <h3 className="text-sm font-bold text-amber-400 tracking-wider text-center uppercase">
+                Tu Equipo de Iniciales
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {starterTeam.map((poke) => (
+                  <div
+                    key={poke.name}
+                    className={`flex items-center space-x-3 border-2 rounded-lg p-3 ${poke.color} shadow-md`}
+                  >
+                    <div className="w-14 h-14 bg-slate-950/80 border border-slate-700 rounded-lg p-1 flex items-center justify-center shrink-0">
+                      <img
+                        src={poke.sprite}
+                        alt={poke.name}
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-white text-sm">
+                          {poke.name}
+                        </span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded ${poke.badge}`}
+                        >
+                          {poke.type}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 leading-tight line-clamp-2">
+                        {poke.desc}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="w-full flex items-center justify-between pt-2">
+              <button
+                type="button"
+                onClick={() => setStep(3)}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 border-2 border-slate-500 rounded-lg text-xs font-bold cursor-pointer transition-colors"
+              >
+                Atrás
+              </button>
+
+              <button
+                type="button"
+                onClick={handleStartBattle}
+                className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-bold text-sm rounded-lg border-2 border-green-300 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer tracking-wider"
+              >
+                ¡Comenzar Desafío!
+              </button>
             </div>
           </div>
         )}
