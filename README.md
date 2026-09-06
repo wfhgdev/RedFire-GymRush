@@ -3,6 +3,8 @@
 
 Simulador de batalla tipo Boss  Rush basado en Pokémon Rojo Fuego, usando React, Vite, Axios, React Router DOM y Supabase.
 
+**Despliegue en Vercel:** [https://gym-rush.vercel.app/](https://gym-rush.vercel.app/)
+
 ------------------------------
 ## Plan de Desarrollo Detallado
 
