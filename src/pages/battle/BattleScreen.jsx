@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { GYM_LEADERS } from '../../data/gymLeaders'
-import brockSprite from '../../assets/svg/Brock.svg'
-import pikachuSprite from '../../assets/svg/Pikachu.svg'
-import bulbasaurSprite from '../../assets/svg/Bulbasaur.svg'
-import charmanderSprite from '../../assets/svg/Charmander.svg'
-import squirtleSprite from '../../assets/svg/Squirtle.svg'
+import { useBattle } from '../../hooks/useBattle'
 import redAvatar from '../../assets/svg/Red.svg'
 import leafAvatar from '../../assets/svg/Leaf.svg'
+import brockSprite from '../../assets/svg/Brock.svg'
+import mistySprite from '../../assets/svg/Misty.svg'
+import surgeSprite from '../../assets/svg/Surge.svg'
+import erikaSprite from '../../assets/svg/Erika.svg'
+import kogaSprite from '../../assets/svg/Koga.svg'
+import sabrinaSprite from '../../assets/svg/Sabrina.svg'
+import blaineSprite from '../../assets/svg/Blaine.svg'
+import giovanniSprite from '../../assets/svg/Giovanni.svg'
 import './BattleScreen.css'
 
 export default function BattleScreen() {
@@ -15,66 +18,68 @@ export default function BattleScreen() {
   const navigate = useNavigate()
   const { playerName = 'Entrenador', gender = 'male' } = location.state || {}
 
-  const currentLeader = GYM_LEADERS[0]
-  const [phase, setPhase] = useState('intro')
+  const {
+    playerTeam,
+    currentGymIndex,
+    currentGymLeader,
+    activePlayerPokemon,
+    activeOpponentPokemon,
+    potionsRemaining,
+    battleStatus,
+    combatLog,
+    setBattleStatus,
+    executeMove,
+    usePotion,
+    switchPokemon,
+    advanceGymLeader,
+    selectLeadPokemon,
+    resetBattle
+  } = useBattle()
+
   const [showSwitchModal, setShowSwitchModal] = useState(false)
-  const [activePokemonIndex, setActivePokemonIndex] = useState(0)
+  const [showMovesMenu, setShowMovesMenu] = useState(false)
 
-  const [playerTeam, setPlayerTeam] = useState([
-    {
-      id: 'pikachu',
-      name: 'Pikachu',
-      type: 'Eléctrico',
-      level: 15,
-      hp: 45,
-      maxHp: 45,
-      sprite: pikachuSprite,
-      moves: ['Impactrueno', 'Ataque Rápido', 'Onda Trueno', 'Gruñido']
-    },
-    {
-      id: 'bulbasaur',
-      name: 'Bulbasaur',
-      type: 'Planta / Veneno',
-      level: 15,
-      hp: 45,
-      maxHp: 45,
-      sprite: bulbasaurSprite,
-      moves: ['Látigo Cepa', 'Placaje', 'Drenadoras', 'Polvo Veneno']
-    },
-    {
-      id: 'charmander',
-      name: 'Charmander',
-      type: 'Fuego',
-      level: 15,
-      hp: 39,
-      maxHp: 39,
-      sprite: charmanderSprite,
-      moves: ['Ascuas', 'Arañazo', 'Gruñido', 'Furia Dragon']
-    },
-    {
-      id: 'squirtle',
-      name: 'Squirtle',
-      type: 'Agua',
-      level: 15,
-      hp: 44,
-      maxHp: 44,
-      sprite: squirtleSprite,
-      moves: ['Pistola Agua', 'Placaje', 'Refugio', 'Burbuja']
-    }
-  ])
+  const leaderSprites = {
+    Brock: brockSprite,
+    Misty: mistySprite,
+    'Lt. Surge': surgeSprite,
+    Erika: erikaSprite,
+    Koga: kogaSprite,
+    Sabrina: sabrinaSprite,
+    Blaine: blaineSprite,
+    Giovanni: giovanniSprite
+  }
 
-  const activePokemon = playerTeam[activePokemonIndex]
-  const opponentPokemon = currentLeader.pokemonTeam[0]
+  const currentLeaderSprite =
+    leaderSprites[currentGymLeader?.name] || brockSprite
 
   const handleSelectLead = (index) => {
-    setActivePokemonIndex(index)
-    setPhase('battle')
+    selectLeadPokemon(index)
     setShowSwitchModal(false)
   }
 
+  const handleSwitchInCombat = (index) => {
+    switchPokemon(index)
+    setShowSwitchModal(false)
+    setShowMovesMenu(false)
+  }
+
+  const handleExecuteMove = (moveIndex) => {
+    executeMove(moveIndex)
+    setShowMovesMenu(false)
+  }
+
+  const opponentHpPercent = activeOpponentPokemon
+    ? Math.round((activeOpponentPokemon.hp / activeOpponentPokemon.maxHp) * 100)
+    : 0
+
+  const playerHpPercent = activePlayerPokemon
+    ? Math.round((activePlayerPokemon.hp / activePlayerPokemon.maxHp) * 100)
+    : 0
+
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 scanlines select-none font-mono">
-      <div className="w-full max-w-4xl bg-slate-900 border-4 border-slate-700 rounded-xl p-4 shadow-2xl relative overflow-hidden flex flex-col min-h-[600px]">
+      <div className="w-full max-w-4xl bg-slate-900 border-4 border-slate-700 rounded-xl p-4 shadow-2xl relative overflow-hidden flex flex-col min-h-[620px]">
         <header className="flex items-center justify-between bg-slate-950 border-2 border-slate-800 rounded-lg p-3 mb-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-slate-800 border border-amber-400 rounded p-0.5 flex items-center justify-center">
@@ -96,10 +101,10 @@ export default function BattleScreen() {
 
           <div className="text-center">
             <span className="text-xs text-amber-400 font-bold block uppercase tracking-wider">
-              Combate 1 de 8
+              Combate {currentGymIndex + 1} de 8
             </span>
             <span className="text-xs text-slate-300 font-bold">
-              Gimnasio de Ciudad Plateada
+              {currentGymLeader?.title}
             </span>
           </div>
 
@@ -112,23 +117,23 @@ export default function BattleScreen() {
           </button>
         </header>
 
-        {phase === 'intro' && (
+        {battleStatus === 'intro' && (
           <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-950/90 border-2 border-slate-800 rounded-lg animate-fade-in space-y-6">
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="w-36 h-36 bg-slate-900 border-4 border-amber-400 rounded-xl p-2 flex items-center justify-center shadow-xl">
                 <img
-                  src={brockSprite}
-                  alt={currentLeader.name}
+                  src={currentLeaderSprite}
+                  alt={currentGymLeader?.name}
                   className="max-h-full max-w-full object-contain"
                 />
               </div>
 
               <div>
                 <h2 className="text-2xl font-bold text-yellow-400">
-                  {currentLeader.name}
+                  {currentGymLeader?.name}
                 </h2>
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">
-                  {currentLeader.title}
+                  {currentGymLeader?.title}
                 </p>
               </div>
             </div>
@@ -136,14 +141,14 @@ export default function BattleScreen() {
             <div className="w-full max-w-2xl bg-slate-900 border-4 border-blue-600 rounded-xl p-5 shadow-2xl relative">
               <div className="bg-slate-950 border-2 border-slate-800 rounded-lg p-4 mb-4">
                 <p className="text-sm md:text-base text-white leading-relaxed font-bold">
-                  "{currentLeader.dialogue}"
+                  "{currentGymLeader?.dialogue}"
                 </p>
               </div>
 
               <div className="flex justify-end">
                 <button
                   type="button"
-                  onClick={() => setPhase('select_lead')}
+                  onClick={() => setBattleStatus('select_lead')}
                   className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg border-2 border-blue-300 shadow-md text-xs tracking-wider cursor-pointer active:scale-95 transition-transform"
                 >
                   Continuar ▶
@@ -153,21 +158,21 @@ export default function BattleScreen() {
           </div>
         )}
 
-        {phase === 'select_lead' && (
+        {battleStatus === 'select_lead' && (
           <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-950/90 border-2 border-slate-800 rounded-lg animate-fade-in space-y-6">
             <div className="text-center bg-slate-900 border-2 border-slate-700 rounded-lg px-6 py-3 shadow-inner">
               <h2 className="text-lg md:text-xl font-bold text-yellow-400">
                 Selecciona tu Pokémon Inicial de Combate
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                ¿Qué Pokémon liderará el enfrentamiento contra Brock?
+                ¿Qué Pokémon liderará el enfrentamiento contra {currentGymLeader?.name}?
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
               {playerTeam.map((poke, index) => (
                 <button
-                  key={poke.id}
+                  key={poke.key}
                   type="button"
                   onClick={() => handleSelectLead(index)}
                   className="group flex flex-col items-center bg-slate-900 hover:bg-blue-950/80 border-4 border-slate-700 hover:border-blue-400 rounded-xl p-4 transition-all duration-200 cursor-pointer shadow-lg active:scale-95"
@@ -197,11 +202,13 @@ export default function BattleScreen() {
           </div>
         )}
 
-        {phase === 'battle' && (
+        {battleStatus === 'battle' && (
           <div className="flex-1 flex flex-col justify-between space-y-4">
             <div
               className="bg-slate-950 border-4 border-slate-800 rounded-xl p-4 flex-1 flex flex-col justify-between relative min-h-[340px] bg-cover bg-center overflow-hidden"
-              style={{ backgroundImage: `url(${currentLeader.backgroundImg})` }}
+              style={{
+                backgroundImage: `url(${currentGymLeader?.backgroundImg})`
+              }}
             >
               <div className="absolute inset-0 bg-slate-950/50 pointer-events-none"></div>
 
@@ -209,60 +216,79 @@ export default function BattleScreen() {
                 <div className="bg-slate-900/90 border-2 border-slate-700 rounded-lg p-3 w-56 shadow-md backdrop-blur-xs">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-xs text-white">
-                      {opponentPokemon.name}
+                      {activeOpponentPokemon?.name}
                     </span>
                     <span className="text-[10px] font-bold text-amber-400">
-                      Nv. {opponentPokemon.level}
+                      Nv. {activeOpponentPokemon?.level}
                     </span>
                   </div>
 
                   <div className="w-full bg-slate-950 border border-slate-700 rounded-full h-3 p-0.5">
-                    <div className="bg-emerald-500 h-full rounded-full w-full"></div>
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        opponentHpPercent > 50
+                          ? 'bg-emerald-500'
+                          : opponentHpPercent > 20
+                          ? 'bg-amber-500'
+                          : 'bg-red-500'
+                      }`}
+                      style={{ width: `${opponentHpPercent}%` }}
+                    ></div>
                   </div>
                   <span className="text-[9px] text-slate-400 block text-right mt-0.5">
-                    PS: 100%
+                    PS: {opponentHpPercent}%
                   </span>
                 </div>
 
                 <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg backdrop-blur-xs">
                   <img
-                    src={brockSprite}
-                    alt={currentLeader.name}
+                    src={currentLeaderSprite}
+                    alt={currentGymLeader?.name}
                     className="max-h-full max-w-full object-contain drop-shadow"
                   />
                 </div>
               </div>
 
               <div className="flex items-end justify-between relative z-10">
-
-                <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg">
-                  <img
-                    src={activePokemon.sprite}
-                    alt={activePokemon.name}
-                    className="max-h-full max-w-full object-contain drop-shadow"
-                  />
+                <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg backdrop-blur-xs">
+                  {activePlayerPokemon && (
+                    <img
+                      src={activePlayerPokemon.sprite}
+                      alt={activePlayerPokemon.name}
+                      className="max-h-full max-w-full object-contain drop-shadow"
+                    />
+                  )}
                 </div>
 
-                <div className="bg-slate-900 border-2 border-slate-700 rounded-lg p-3 w-60 shadow-md">
+                <div className="bg-slate-900/90 border-2 border-slate-700 rounded-lg p-3 w-60 shadow-md backdrop-blur-xs">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-xs text-white">
-                      {activePokemon.name}
+                      {activePlayerPokemon?.name}
                     </span>
                     <span className="text-[10px] font-bold text-amber-400">
-                      Nv. {activePokemon.level}
+                      Nv. {activePlayerPokemon?.level}
                     </span>
                   </div>
 
                   <div className="w-full bg-slate-950 border border-slate-700 rounded-full h-3 p-0.5">
-                    <div className="bg-emerald-500 h-full rounded-full w-full"></div>
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        playerHpPercent > 50
+                          ? 'bg-emerald-500'
+                          : playerHpPercent > 20
+                          ? 'bg-amber-500'
+                          : 'bg-red-500'
+                      }`}
+                      style={{ width: `${playerHpPercent}%` }}
+                    ></div>
                   </div>
 
                   <div className="flex justify-between items-center mt-1">
                     <span className="text-[10px] px-1.5 py-0.2 bg-slate-800 text-blue-300 rounded font-bold">
-                      {activePokemon.type}
+                      {activePlayerPokemon?.type}
                     </span>
                     <span className="text-[10px] text-slate-200 font-bold">
-                      {activePokemon.hp} / {activePokemon.maxHp} PS
+                      {activePlayerPokemon?.hp} / {activePlayerPokemon?.maxHp} PS
                     </span>
                   </div>
                 </div>
@@ -270,46 +296,178 @@ export default function BattleScreen() {
             </div>
 
             <div className="bg-slate-900 border-4 border-blue-600 rounded-xl p-4 flex flex-col md:flex-row gap-4">
-              <div className="flex-1 bg-slate-950 border-2 border-slate-800 rounded-lg p-3 text-xs leading-relaxed text-slate-200">
-                <p className="font-bold text-yellow-400">
-                  ¡{activePokemon.name} entra en combate contra {currentLeader.name}!
-                </p>
-                <p className="text-slate-400 mt-1">
-                  Selecciona una acción para continuar el turno.
-                </p>
+              <div className="flex-1 bg-slate-950 border-2 border-slate-800 rounded-lg p-3 text-xs leading-relaxed text-slate-200 flex flex-col justify-between min-h-[110px]">
+                <div className="space-y-1 overflow-y-auto max-h-[85px] pr-1">
+                  {combatLog.length > 0 ? (
+                    combatLog.slice(0, 3).map((log, idx) => (
+                      <p
+                        key={idx}
+                        className={
+                          idx === 0
+                            ? 'text-yellow-300 font-bold'
+                            : 'text-slate-400'
+                        }
+                      >
+                        {log}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="text-yellow-400 font-bold">
+                      ¡{activePlayerPokemon?.name} entra en combate contra{' '}
+                      {currentGymLeader?.name}!
+                    </p>
+                  )}
+                </div>
+
+                <span className="text-[9px] text-amber-500/80 mt-1 block">
+                  Pociones restantes: {potionsRemaining} / 6
+                </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 w-full md:w-72">
-                <button
-                  type="button"
-                  className="py-3 px-3 bg-red-700 hover:bg-red-600 text-white font-bold rounded border-2 border-red-500 text-xs shadow cursor-pointer active:scale-95 transition-transform"
-                >
-                  LUCHAR
-                </button>
+              {!showMovesMenu ? (
+                <div className="grid grid-cols-2 gap-2 w-full md:w-72 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setShowMovesMenu(true)}
+                    className="py-3 px-3 bg-red-700 hover:bg-red-600 text-white font-bold rounded border-2 border-red-500 text-xs shadow cursor-pointer active:scale-95 transition-transform"
+                  >
+                    LUCHAR
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setShowSwitchModal(true)}
-                  className="py-3 px-3 bg-blue-700 hover:bg-blue-600 text-white font-bold rounded border-2 border-blue-500 text-xs shadow cursor-pointer active:scale-95 transition-transform"
-                >
-                  POKÉMON
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowSwitchModal(true)}
+                    className="py-3 px-3 bg-blue-700 hover:bg-blue-600 text-white font-bold rounded border-2 border-blue-500 text-xs shadow cursor-pointer active:scale-95 transition-transform"
+                  >
+                    POKÉMON
+                  </button>
 
-                <button
-                  type="button"
-                  className="py-3 px-3 bg-amber-700 hover:bg-amber-600 text-white font-bold rounded border-2 border-amber-500 text-xs shadow cursor-pointer active:scale-95 transition-transform"
-                >
-                  MOCHILA
-                </button>
+                  <button
+                    type="button"
+                    onClick={usePotion}
+                    disabled={potionsRemaining <= 0}
+                    className={`py-3 px-3 font-bold rounded border-2 text-xs shadow cursor-pointer active:scale-95 transition-transform ${
+                      potionsRemaining > 0
+                        ? 'bg-amber-700 hover:bg-amber-600 text-white border-amber-500'
+                        : 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
+                    }`}
+                  >
+                    MOCHILA ({potionsRemaining})
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setPhase('intro')}
-                  className="py-3 px-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold rounded border-2 border-slate-500 text-xs shadow cursor-pointer active:scale-95 transition-transform"
-                >
-                  INFO
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => setBattleStatus('intro')}
+                    className="py-3 px-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold rounded border-2 border-slate-500 text-xs shadow cursor-pointer active:scale-95 transition-transform"
+                  >
+                    INFO
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 w-full md:w-72 shrink-0">
+                  <div className="grid grid-cols-2 gap-2">
+                    {activePlayerPokemon?.moves.map((move, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleExecuteMove(idx)}
+                        disabled={move.pp <= 0}
+                        className={`p-2 font-bold rounded border text-[11px] text-left flex flex-col justify-between transition-transform cursor-pointer ${
+                          move.pp > 0
+                            ? 'bg-slate-800 hover:bg-red-900/80 text-white border-slate-600 active:scale-95'
+                            : 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed'
+                        }`}
+                      >
+                        <span className="truncate">{move.name}</span>
+                        <span className="text-[9px] text-slate-400 self-end">
+                          PP {move.pp}/{move.maxPp}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowMovesMenu(false)}
+                    className="py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {battleStatus === 'victory' && (
+          <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-950/90 border-2 border-slate-800 rounded-lg animate-fade-in space-y-6">
+            <div className="w-full max-w-lg bg-slate-900 border-4 border-green-500 rounded-xl p-6 text-center space-y-4 shadow-2xl">
+              <h2 className="text-2xl font-bold text-green-400">
+                ¡Victoria de Gimnasio!
+              </h2>
+
+              <p className="text-sm text-slate-200">
+                ¡Has derrotado a <span className="font-bold text-yellow-300">{currentGymLeader?.name}</span>!
+                Tu equipo Pokémon se recupera al 100% (HP y PP) para el siguiente desafío.
+              </p>
+
+              <button
+                type="button"
+                onClick={advanceGymLeader}
+                className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-bold text-sm rounded-lg border-2 border-green-300 shadow-lg cursor-pointer transition-transform active:scale-95"
+              >
+                Siguiente Gimnasio ▶
+              </button>
+            </div>
+          </div>
+        )}
+
+        {battleStatus === 'defeat' && (
+          <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-950/90 border-2 border-slate-800 rounded-lg animate-fade-in space-y-6">
+            <div className="w-full max-w-lg bg-slate-900 border-4 border-red-600 rounded-xl p-6 text-center space-y-4 shadow-2xl">
+              <h2 className="text-2xl font-bold text-red-500">
+                ¡Has sido Derrotado!
+              </h2>
+
+              <p className="text-sm text-slate-300">
+                Todos tus Pokémon se han debilitado frente a{' '}
+                <span className="font-bold text-yellow-300">
+                  {currentGymLeader?.name}
+                </span>
+                .
+              </p>
+
+              <button
+                type="button"
+                onClick={resetBattle}
+                className="px-8 py-3 bg-red-700 hover:bg-red-600 text-white font-bold text-sm rounded-lg border-2 border-red-400 shadow-lg cursor-pointer transition-transform active:scale-95"
+              >
+                Reintentar Desafío
+              </button>
+            </div>
+          </div>
+        )}
+
+        {battleStatus === 'game_clear' && (
+          <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-950/90 border-2 border-slate-800 rounded-lg animate-fade-in space-y-6">
+            <div className="w-full max-w-lg bg-slate-900 border-4 border-yellow-400 rounded-xl p-6 text-center space-y-4 shadow-2xl">
+              <span className="text-5xl block">🏆</span>
+              <h2 className="text-2xl font-bold text-yellow-400">
+                ¡DESAFÍO COMPLETADO!
+              </h2>
+
+              <p className="text-sm text-slate-200">
+                ¡Felicidades, <span className="font-bold text-yellow-300">{playerName}</span>!
+                ¡Has vencido a los 8 Líderes de Gimnasio de Kanto en el Pokémon Gym Rush!
+              </p>
+
+              <button
+                type="button"
+                onClick={resetBattle}
+                className="px-8 py-3 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-slate-950 font-bold text-sm rounded-lg border-2 border-yellow-200 shadow-lg cursor-pointer transition-transform active:scale-95"
+              >
+                Jugar de Nuevo
+              </button>
             </div>
           </div>
         )}
@@ -332,16 +490,23 @@ export default function BattleScreen() {
 
               <div className="grid grid-cols-1 gap-2">
                 {playerTeam.map((poke, index) => {
-                  const isActive = index === activePokemonIndex
+                  const isActive = index === playerTeam.indexOf(activePlayerPokemon)
+                  const isFainted = poke.hp <= 0
                   return (
                     <button
-                      key={poke.id}
+                      key={poke.key}
                       type="button"
-                      disabled={isActive}
-                      onClick={() => handleSelectLead(index)}
+                      disabled={isActive || isFainted}
+                      onClick={() =>
+                        battleStatus === 'battle'
+                          ? handleSwitchInCombat(index)
+                          : handleSelectLead(index)
+                      }
                       className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
                         isActive
                           ? 'bg-blue-950/40 border-blue-500 opacity-60 cursor-default'
+                          : isFainted
+                          ? 'bg-red-950/20 border-red-900/50 opacity-40 cursor-not-allowed'
                           : 'bg-slate-950 hover:bg-slate-800 border-slate-700 cursor-pointer'
                       }`}
                     >
@@ -367,8 +532,12 @@ export default function BattleScreen() {
                         <span className="text-xs font-bold text-amber-400 block">
                           Nv. {poke.level}
                         </span>
-                        <span className="text-[10px] text-slate-300">
-                          {poke.hp}/{poke.maxHp} PS
+                        <span
+                          className={`text-[10px] font-bold ${
+                            isFainted ? 'text-red-400' : 'text-slate-300'
+                          }`}
+                        >
+                          {isFainted ? 'Debilitado' : `${poke.hp}/${poke.maxHp} PS`}
                         </span>
                       </div>
                     </button>
