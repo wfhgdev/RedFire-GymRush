@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { fetchPokemonProfiles } from '../../services/pokemonService'
 import gymRushLogo from '../../assets/png/GymRushLogo.png'
+import femalePikachuSprite from '../../assets/png/PikachuFemale.png'
 import redAvatar from '../../assets/svg/Red.svg'
 import leafAvatar from '../../assets/svg/Leaf.svg'
 import profesorOak from '../../assets/svg/ProfesorOak.svg'
@@ -16,9 +18,11 @@ export default function HomeScreen() {
   const [gender, setGender] = useState(null)
   const [playerName, setPlayerName] = useState('')
   const [isUpper, setIsUpper] = useState(true)
+  const [showcaseSprites, setShowcaseSprites] = useState({})
 
   const starterTeam = [
     {
+      id: 25,
       name: 'Pikachu',
       type: 'Eléctrico',
       color: 'bg-yellow-900/60 border-yellow-500 text-yellow-300',
@@ -27,6 +31,7 @@ export default function HomeScreen() {
       desc: 'Alta velocidad y ataques de tipo Eléctrico.'
     },
     {
+      id: 1,
       name: 'Bulbasaur',
       type: 'Planta / Veneno',
       color: 'bg-emerald-900/60 border-emerald-500 text-emerald-300',
@@ -35,6 +40,7 @@ export default function HomeScreen() {
       desc: 'Equilibrado con movimientos de drenado y drenaje.'
     },
     {
+      id: 4,
       name: 'Charmander',
       type: 'Fuego',
       color: 'bg-orange-900/60 border-orange-500 text-orange-300',
@@ -43,6 +49,7 @@ export default function HomeScreen() {
       desc: 'Potente ataque especial de tipo Fuego.'
     },
     {
+      id: 7,
       name: 'Squirtle',
       type: 'Agua',
       color: 'bg-cyan-900/60 border-cyan-500 text-cyan-300',
@@ -67,6 +74,20 @@ export default function HomeScreen() {
   ]
 
   const currentGrid = isUpper ? upperGrid : lowerGrid
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    fetchPokemonProfiles([25, 1, 4, 7], controller.signal).then((profiles) => {
+      const sprites = profiles.reduce((spriteMap, profile) => {
+        spriteMap[profile.id] = profile.sprites?.other?.dream_world?.front_default
+        return spriteMap
+      }, {})
+      setShowcaseSprites(sprites)
+    }).catch(() => {})
+
+    return () => controller.abort()
+  }, [])
 
   useEffect(() => {
     if (step !== 1) return
@@ -133,6 +154,13 @@ export default function HomeScreen() {
         state: { playerName: playerName.trim(), gender }
       })
     }
+  }
+
+  const getShowcaseSprite = (poke) => {
+    if (poke.name === 'Pikachu' && gender === 'female') {
+      return femalePikachuSprite
+    }
+    return showcaseSprites[poke.id] || poke.sprite
   }
 
   return (
@@ -368,7 +396,7 @@ export default function HomeScreen() {
                   >
                     <div className="w-14 h-14 bg-slate-950/80 border border-slate-700 rounded-lg p-1 flex items-center justify-center shrink-0">
                       <img
-                        src={poke.sprite}
+                        src={getShowcaseSprite(poke)}
                         alt={poke.name}
                         className="max-h-full max-w-full object-contain"
                       />
