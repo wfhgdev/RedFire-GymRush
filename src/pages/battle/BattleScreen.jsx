@@ -33,8 +33,10 @@ export default function BattleScreen() {
     switchPokemon,
     advanceGymLeader,
     selectLeadPokemon,
-    resetBattle
-  } = useBattle()
+    resetBattle,
+    continueIntro,
+    dismissEvolution
+  } = useBattle({ gender })
 
   const [showSwitchModal, setShowSwitchModal] = useState(false)
   const [showMovesMenu, setShowMovesMenu] = useState(false)
@@ -56,6 +58,14 @@ export default function BattleScreen() {
   const handleSelectLead = (index) => {
     selectLeadPokemon(index)
     setShowSwitchModal(false)
+  }
+
+  const handleGymVictory = () => {
+    if (currentGymIndex === 7) {
+      navigate('/victory-screen', { state: { playerName } })
+      return
+    }
+    advanceGymLeader()
   }
 
   const handleSwitchInCombat = (index) => {
@@ -148,7 +158,7 @@ export default function BattleScreen() {
               <div className="flex justify-end">
                 <button
                   type="button"
-                  onClick={() => setBattleStatus('select_lead')}
+                  onClick={continueIntro}
                   className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg border-2 border-blue-300 shadow-md text-xs tracking-wider cursor-pointer active:scale-95 transition-transform"
                 >
                   Continuar ▶
@@ -179,7 +189,7 @@ export default function BattleScreen() {
                 >
                   <div className="w-20 h-20 bg-slate-950 border-2 border-slate-800 rounded-lg p-1.5 mb-3 flex items-center justify-center group-hover:scale-105 transition-transform">
                     <img
-                      src={poke.sprite}
+                      src={poke.sprites?.front || poke.sprite}
                       alt={poke.name}
                       className="max-h-full max-w-full object-contain"
                     />
@@ -198,6 +208,25 @@ export default function BattleScreen() {
                   </span>
                 </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {battleStatus === 'evolution' && (
+          <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-950/90 border-2 border-slate-800 rounded-lg animate-fade-in">
+            <div className="w-full max-w-lg bg-slate-900 border-4 border-yellow-400 rounded-xl p-8 text-center space-y-6 shadow-2xl">
+              <span className="text-5xl block">★</span>
+              <h2 className="text-2xl font-bold text-yellow-300">¡Evolución!</h2>
+              <p className="text-sm text-white font-bold">
+                ¡Tu Pokémon evolucionó a Etapa {currentGymIndex === 2 ? '2' : '3'}!
+              </p>
+              <button
+                type="button"
+                onClick={dismissEvolution}
+                className="px-8 py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold rounded border-2 border-yellow-200 cursor-pointer"
+              >
+                Continuar ▶
+              </button>
             </div>
           </div>
         )}
@@ -242,8 +271,8 @@ export default function BattleScreen() {
 
                 <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg backdrop-blur-xs">
                   <img
-                    src={currentLeaderSprite}
-                    alt={currentGymLeader?.name}
+                    src={activeOpponentPokemon?.sprites?.front || activeOpponentPokemon?.sprite || currentLeaderSprite}
+                    alt={activeOpponentPokemon?.name || currentGymLeader?.name}
                     className="max-h-full max-w-full object-contain drop-shadow"
                   />
                 </div>
@@ -253,7 +282,7 @@ export default function BattleScreen() {
                 <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg backdrop-blur-xs">
                   {activePlayerPokemon && (
                     <img
-                      src={activePlayerPokemon.sprite}
+                      src={activePlayerPokemon.sprites?.back || activePlayerPokemon.sprite}
                       alt={activePlayerPokemon.name}
                       className="max-h-full max-w-full object-contain drop-shadow"
                     />
@@ -399,7 +428,7 @@ export default function BattleScreen() {
           </div>
         )}
 
-        {battleStatus === 'victory' && (
+        {battleStatus === 'leader_defeat' && (
           <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-950/90 border-2 border-slate-800 rounded-lg animate-fade-in space-y-6">
             <div className="w-full max-w-lg bg-slate-900 border-4 border-green-500 rounded-xl p-6 text-center space-y-4 shadow-2xl">
               <h2 className="text-2xl font-bold text-green-400">
@@ -407,43 +436,63 @@ export default function BattleScreen() {
               </h2>
 
               <p className="text-sm text-slate-200">
-                ¡Has derrotado a <span className="font-bold text-yellow-300">{currentGymLeader?.name}</span>!
-                Tu equipo Pokémon se recupera al 100% (HP y PP) para el siguiente desafío.
+                "¡{currentGymLeader?.dialogue}"
               </p>
 
               <button
                 type="button"
-                onClick={advanceGymLeader}
+                onClick={handleGymVictory}
                 className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-bold text-sm rounded-lg border-2 border-green-300 shadow-lg cursor-pointer transition-transform active:scale-95"
               >
-                Siguiente Gimnasio ▶
+                {currentGymIndex === 7 ? 'Ver victoria final ▶' : 'Cerrar diálogo ▶'}
               </button>
             </div>
           </div>
         )}
 
-        {battleStatus === 'defeat' && (
+        {battleStatus === 'leader_victory' && (
           <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-950/90 border-2 border-slate-800 rounded-lg animate-fade-in space-y-6">
             <div className="w-full max-w-lg bg-slate-900 border-4 border-red-600 rounded-xl p-6 text-center space-y-4 shadow-2xl">
               <h2 className="text-2xl font-bold text-red-500">
-                ¡Has sido Derrotado!
+                ¡{currentGymLeader?.name} ha ganado!
               </h2>
 
               <p className="text-sm text-slate-300">
-                Todos tus Pokémon se han debilitado frente a{' '}
-                <span className="font-bold text-yellow-300">
-                  {currentGymLeader?.name}
-                </span>
-                .
+                "¡Todos tus Pokémon se han debilitado! ¡Vuelve a entrenar y regresa más fuerte!"
               </p>
 
               <button
                 type="button"
-                onClick={resetBattle}
+                onClick={() => setBattleStatus('game_over')}
                 className="px-8 py-3 bg-red-700 hover:bg-red-600 text-white font-bold text-sm rounded-lg border-2 border-red-400 shadow-lg cursor-pointer transition-transform active:scale-95"
               >
-                Reintentar Desafío
+                Continuar ▶
               </button>
+            </div>
+          </div>
+        )}
+
+        {battleStatus === 'game_over' && (
+          <div className="absolute inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-lg bg-slate-900 border-4 border-red-500 rounded-xl p-8 text-center space-y-6 shadow-2xl">
+              <h2 className="text-4xl font-bold text-red-400">GAME OVER</h2>
+              <p className="text-sm text-slate-200">El desafío terminó por ahora.</p>
+              <div className="flex flex-col sm:flex-row justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={resetBattle}
+                  className="px-6 py-3 bg-red-700 hover:bg-red-600 text-white font-bold rounded border-2 border-red-400 cursor-pointer"
+                >
+                  Reiniciar desafío
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/')}
+                  className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded border-2 border-slate-500 cursor-pointer"
+                >
+                  Volver al inicio
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -513,7 +562,7 @@ export default function BattleScreen() {
                       <div className="flex items-center space-x-3">
                         <div className="w-12 h-12 bg-slate-900 border border-slate-700 rounded p-1 flex items-center justify-center">
                           <img
-                            src={poke.sprite}
+                            src={poke.sprites?.front || poke.sprite}
                             alt={poke.name}
                             className="max-h-full max-w-full object-contain"
                           />

@@ -1,6 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { GYM_LEADERS } from '../data/gymLeaders'
+import { fetchPokemonProfiles } from '../services/pokemonService'
 import pikachuSprite from '../assets/svg/Pikachu.svg'
+import femalePikachuSprite from '../assets/png/PikachuFemale.png'
 import bulbasaurSprite from '../assets/svg/Bulbasaur.svg'
 import charmanderSprite from '../assets/svg/Charmander.svg'
 import squirtleSprite from '../assets/svg/Squirtle.svg'
@@ -72,6 +74,51 @@ const INITIAL_STARTERS = [
   }
 ]
 
+const STARTER_IDS_BY_TIER = [
+  [1, 4, 7],
+  [2, 5, 8],
+  [3, 6, 9]
+]
+
+function getStarterId(key, gymIndex) {
+  if (key === 'pikachu') return 25
+  const starterIndex = ['bulbasaur', 'charmander', 'squirtle'].indexOf(key)
+  const tier = gymIndex < 2 ? 0 : gymIndex < 5 ? 1 : 2
+  return STARTER_IDS_BY_TIER[tier][starterIndex]
+}
+
+function getProfileSprite(profile, spriteType, gender, isPikachu) {
+  if (!profile) return null
+  const sprites = profile.sprites?.other?.showdown || {}
+  if (spriteType === 'intro') return profile.sprites?.other?.dream_world?.front_default
+  if (spriteType === 'back') {
+    return gender === 'female' && isPikachu
+      ? sprites.back_female || sprites.back_default
+      : sprites.back_default
+  }
+  return gender === 'female' && isPikachu
+    ? sprites.front_female || sprites.front_default
+    : sprites.front_default
+}
+
+function applyProfile(pokemon, profile, gender) {
+  const isPikachu = pokemon.id === 25
+  return {
+    ...pokemon,
+    name: profile?.name
+      ? profile.name.charAt(0).toUpperCase() + profile.name.slice(1)
+      : pokemon.name,
+    sprites: {
+      intro: isPikachu && gender === 'female'
+        ? femalePikachuSprite
+        : getProfileSprite(profile, 'intro', gender, isPikachu),
+      front: getProfileSprite(profile, 'front', gender, isPikachu),
+      back: getProfileSprite(profile, 'back', gender, isPikachu)
+    },
+    cry: profile?.cries?.latest || null
+  }
+}
+
 function getInitialOpponentTeam(leaderIndex) {
   const leader = GYM_LEADERS[leaderIndex]
   if (!leader) return []
@@ -88,7 +135,7 @@ function getInitialOpponentTeam(leaderIndex) {
   }))
 }
 
-export function useBattle() {
+export function useBattle({ gender = 'male' } = {}) {
   const [currentGymIndex, setCurrentGymIndex] = useState(0)
   const [playerTeam, setPlayerTeam] = useState(INITIAL_STARTERS)
   const [activePlayerIndex, setActivePlayerIndex] = useState(0)
@@ -103,6 +150,33 @@ export function useBattle() {
   const currentGymLeader = GYM_LEADERS[currentGymIndex] || GYM_LEADERS[0]
   const activePlayerPokemon = playerTeam[activePlayerIndex]
   const activeOpponentPokemon = opponentTeam[activeOpponentIndex]
+  const hydrationKey = [...new Set([
+    ...playerTeam.map((pokemon) => pokemon.id),
+    ...opponentTeam.map((pokemon) => pokemon.id)
+  ])].join(',')
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const ids = hydrationKey.split(',').filter(Boolean).map(Number)
+
+    fetchPokemonProfiles(ids, controller.signal).then((profiles) => {
+      const profilesById = new Map(profiles.map((profile) => [profile.id, profile]))
+      setPlayerTeam((previousTeam) => previousTeam.map((pokemon) =>
+        applyProfile(pokemon, profilesById.get(pokemon.id), gender)
+      ))
+      setOpponentTeam((previousTeam) => previousTeam.map((pokemon) =>
+        applyProfile(pokemon, profilesById.get(pokemon.id), gender)
+      ))
+    }).catch(() => {})
+
+    return () => controller.abort()
+  }, [currentGymIndex, gender, hydrationKey])
+
+  useEffect(() => {
+    if (battleStatus !== 'battle') return
+    const cry = activePlayerPokemon?.cry || activeOpponentPokemon?.cry
+    if (cry) new Audio(cry).play().catch(() => {})
+  }, [battleStatus, activePlayerIndex, activeOpponentIndex, activePlayerPokemon?.cry, activeOpponentPokemon?.cry])
 
   const restoreTeam = useCallback(() => {
     setPlayerTeam((prev) =>
@@ -139,7 +213,7 @@ export function useBattle() {
 
           const hasAlive = nextTeam.some((p) => p.hp > 0)
           if (!hasAlive) {
-            setBattleStatus('defeat')
+            setBattleStatus('leader_victory')
             appendLog('¡Todos tus Pokémon se han debilitado! Has sido derrotado.')
           }
         } else {
@@ -205,7 +279,7 @@ export function useBattle() {
             `¡${currentGymLeader.name} envió a ${opponentTeam[nextOpponentIdx].name}!`
           )
         } else {
-          setBattleStatus('victory')
+          setBattleStatus('leader_defeat')
           appendLog(
             `¡Has derrotado a ${currentGymLeader.name}! ¡Victoria de gimnasio!`
           )
@@ -303,6 +377,14 @@ export function useBattle() {
     [playerTeam, appendLog]
   )
 
+  const continueIntro = useCallback(() => {
+    setBattleStatus(currentGymIndex === 2 || currentGymIndex === 5 ? 'evolution' : 'select_lead')
+  }, [currentGymIndex])
+
+  const dismissEvolution = useCallback(() => {
+    setBattleStatus('select_lead')
+  }, [])
+
   const advanceGymLeader = useCallback(() => {
     if (currentGymIndex >= GYM_LEADERS.length - 1) {
       setBattleStatus('game_clear')
@@ -311,7 +393,14 @@ export function useBattle() {
     }
 
     const nextGymIdx = currentGymIndex + 1
+    const evolvedTeam = playerTeam.map((pokemon) => ({
+      ...pokemon,
+      id: getStarterId(pokemon.key, nextGymIdx),
+      hp: pokemon.maxHp,
+      moves: pokemon.moves.map((move) => ({ ...move, pp: move.maxPp }))
+    }))
     setCurrentGymIndex(nextGymIdx)
+    setPlayerTeam(evolvedTeam)
     setOpponentTeam(getInitialOpponentTeam(nextGymIdx))
     setActiveOpponentIndex(0)
     restoreTeam()
@@ -319,7 +408,7 @@ export function useBattle() {
     appendLog(
       `¡Has avanzado al Gimnasio ${nextGymIdx + 1}! Tu equipo ha sido restaurado al 100%.`
     )
-  }, [currentGymIndex, restoreTeam, appendLog])
+  }, [currentGymIndex, playerTeam, restoreTeam, appendLog])
 
   const resetBattle = useCallback(() => {
     setCurrentGymIndex(0)
@@ -343,6 +432,8 @@ export function useBattle() {
     battleStatus,
     combatLog,
     setBattleStatus,
+    continueIntro,
+    dismissEvolution,
     executeMove,
     usePotion,
     switchPokemon,
