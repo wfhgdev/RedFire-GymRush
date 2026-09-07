@@ -23,7 +23,7 @@ export default function HomeScreen() {
       type: 'Eléctrico',
       color: 'bg-yellow-900/60 border-yellow-500 text-yellow-300',
       badge: 'bg-yellow-500 text-slate-950',
-      sprite: pikachuSprite,
+      sprite: femalePikachuSprite,
       desc: 'Alta velocidad y ataques de tipo Eléctrico.'
     },
     {
@@ -32,7 +32,6 @@ export default function HomeScreen() {
       type: 'Planta / Veneno',
       color: 'bg-emerald-900/60 border-emerald-500 text-emerald-300',
       badge: 'bg-emerald-500 text-slate-950',
-      sprite: bulbasaurSprite,
       desc: 'Equilibrado con movimientos de drenado y drenaje.'
     },
     {
@@ -41,7 +40,6 @@ export default function HomeScreen() {
       type: 'Fuego',
       color: 'bg-orange-900/60 border-orange-500 text-orange-300',
       badge: 'bg-orange-500 text-slate-950',
-      sprite: charmanderSprite,
       desc: 'Potente ataque especial de tipo Fuego.'
     },
     {
@@ -50,7 +48,6 @@ export default function HomeScreen() {
       type: 'Agua',
       color: 'bg-cyan-900/60 border-cyan-500 text-cyan-300',
       badge: 'bg-cyan-500 text-slate-950',
-      sprite: squirtleSprite,
       desc: 'Gran defensa física e hidráulica.'
     }
   ]

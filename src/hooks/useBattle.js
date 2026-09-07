@@ -13,7 +13,7 @@ const INITIAL_STARTERS = [
     level: 15,
     hp: 45,
     maxHp: 45,
-    sprite: pikachuSprite,
+    sprite: femalePikachuSprite,
     moves: [
       { name: 'Impactrueno', power: 40, pp: 30, maxPp: 30, type: 'Eléctrico' },
       { name: 'Ataque Rápido', power: 40, pp: 30, maxPp: 30, type: 'Normal' },
@@ -29,7 +29,6 @@ const INITIAL_STARTERS = [
     level: 15,
     hp: 45,
     maxHp: 45,
-    sprite: bulbasaurSprite,
     moves: [
       { name: 'Látigo Cepa', power: 45, pp: 25, maxPp: 25, type: 'Planta' },
       { name: 'Placaje', power: 40, pp: 35, maxPp: 35, type: 'Normal' },
@@ -45,7 +44,6 @@ const INITIAL_STARTERS = [
     level: 15,
     hp: 39,
     maxHp: 39,
-    sprite: charmanderSprite,
     moves: [
       { name: 'Ascuas', power: 40, pp: 25, maxPp: 25, type: 'Fuego' },
       { name: 'Arañazo', power: 40, pp: 35, maxPp: 35, type: 'Normal' },
@@ -61,7 +59,6 @@ const INITIAL_STARTERS = [
     level: 15,
     hp: 44,
     maxHp: 44,
-    sprite: squirtleSprite,
     moves: [
       { name: 'Pistola Agua', power: 40, pp: 25, maxPp: 25, type: 'Agua' },
       { name: 'Placaje', power: 40, pp: 35, maxPp: 35, type: 'Normal' },
