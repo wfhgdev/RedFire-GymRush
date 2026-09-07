@@ -269,7 +269,7 @@ export default function BattleScreen() {
                   </span>
                 </div>
 
-                <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg backdrop-blur-xs">
+                <div className="w-28 h-28 bg-transparent border-2 border-transparent rounded-lg p-2 flex items-center justify-center shadow-lg backdrop-blur-xs">
                   <img
                     src={activeOpponentPokemon?.sprites?.front || activeOpponentPokemon?.sprite || currentLeaderSprite}
                     alt={activeOpponentPokemon?.name || currentGymLeader?.name}
@@ -279,7 +279,7 @@ export default function BattleScreen() {
               </div>
 
               <div className="flex items-end justify-between relative z-10">
-                <div className="w-28 h-28 bg-slate-900/80 border-2 border-slate-700 rounded-lg p-2 flex items-center justify-center shadow-lg backdrop-blur-xs">
+                <div className="w-28 h-28 bg-transparent border-2 border-transparent rounded-lg p-2 flex items-center justify-center shadow-lg backdrop-blur-xs">
                   {activePlayerPokemon && (
                     <img
                       src={activePlayerPokemon.sprites?.back || activePlayerPokemon.sprite}
