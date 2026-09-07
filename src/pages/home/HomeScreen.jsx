@@ -387,7 +387,7 @@ export default function HomeScreen() {
                     key={poke.name}
                     className={`flex items-center space-x-3 border-2 rounded-lg p-3 ${poke.color} shadow-md`}
                   >
-                    <div className="w-14 h-14 bg-slate-950/80 border border-slate-700 rounded-lg p-1 flex items-center justify-center shrink-0">
+                    <div className="w-20 h-20 bg-slate-950/80 border border-slate-700 rounded-lg p-1 flex items-center justify-center shrink-0">
                       <img
                         src={getShowcaseSprite(poke)}
                         alt={poke.name}
