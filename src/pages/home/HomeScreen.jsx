@@ -6,10 +6,6 @@ import femalePikachuSprite from '../../assets/png/PikachuFemale.png'
 import redAvatar from '../../assets/svg/Red.svg'
 import leafAvatar from '../../assets/svg/Leaf.svg'
 import profesorOak from '../../assets/svg/ProfesorOak.svg'
-import pikachuSprite from '../../assets/svg/Pikachu.svg'
-import bulbasaurSprite from '../../assets/svg/Bulbasaur.svg'
-import charmanderSprite from '../../assets/svg/Charmander.svg'
-import squirtleSprite from '../../assets/svg/Squirtle.svg'
 import './HomeScreen.css'
 
 export default function HomeScreen() {
@@ -84,7 +80,7 @@ export default function HomeScreen() {
         return spriteMap
       }, {})
       setShowcaseSprites(sprites)
-    }).catch(() => {})
+    }).catch(() => { })
 
     return () => controller.abort()
   }, [])

@@ -1,11 +1,8 @@
 import { useState, useCallback, useEffect } from 'react'
 import { GYM_LEADERS } from '../data/gymLeaders'
 import { fetchPokemonProfiles } from '../services/pokemonService'
-import pikachuSprite from '../assets/svg/Pikachu.svg'
 import femalePikachuSprite from '../assets/png/PikachuFemale.png'
-import bulbasaurSprite from '../assets/svg/Bulbasaur.svg'
-import charmanderSprite from '../assets/svg/Charmander.svg'
-import squirtleSprite from '../assets/svg/Squirtle.svg'
+
 
 const INITIAL_STARTERS = [
   {
@@ -167,7 +164,7 @@ export function useBattle({ gender = 'male' } = {}) {
       setOpponentTeam((previousTeam) => previousTeam.map((pokemon) =>
         applyProfile(pokemon, profilesById.get(pokemon.id), gender)
       ))
-    }).catch(() => {})
+    }).catch(() => { })
 
     return () => controller.abort()
   }, [currentGymIndex, gender, hydrationKey])
@@ -175,7 +172,7 @@ export function useBattle({ gender = 'male' } = {}) {
   useEffect(() => {
     if (battleStatus !== 'battle') return
     const cry = activePlayerPokemon?.cry || activeOpponentPokemon?.cry
-    if (cry) new Audio(cry).play().catch(() => {})
+    if (cry) new Audio(cry).play().catch(() => { })
   }, [battleStatus, activePlayerIndex, activeOpponentIndex, activePlayerPokemon?.cry, activeOpponentPokemon?.cry])
 
   const restoreTeam = useCallback(() => {
