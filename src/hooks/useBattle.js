@@ -1,7 +1,9 @@
 import { useState, useCallback, useEffect } from 'react'
 import { GYM_LEADERS } from '../data/gymLeaders'
-import { fetchMultiplePokemon, fetchPokemonData } from '../services/pokeApi'
+import { fetchMultiplePokemon } from '../services/pokeApi'
 import femalePikachuSprite from '../assets/png/PikachuFemale.png'
+
+const DEFAULT_POTION_COUNT = 6
 
 const INITIAL_STARTERS = [
   {
@@ -12,6 +14,8 @@ const INITIAL_STARTERS = [
     level: 15,
     hp: 45,
     maxHp: 45,
+    status: null,
+    statModifiers: {},
     sprite: femalePikachuSprite,
     moves: [
       { name: 'Impactrueno', power: 40, pp: 30, maxPp: 30, type: 'Eléctrico' },
@@ -28,6 +32,8 @@ const INITIAL_STARTERS = [
     level: 15,
     hp: 45,
     maxHp: 45,
+    status: null,
+    statModifiers: {},
     moves: [
       { name: 'Látigo Cepa', power: 45, pp: 25, maxPp: 25, type: 'Planta' },
       { name: 'Placaje', power: 40, pp: 35, maxPp: 35, type: 'Normal' },
@@ -43,6 +49,8 @@ const INITIAL_STARTERS = [
     level: 15,
     hp: 39,
     maxHp: 39,
+    status: null,
+    statModifiers: {},
     moves: [
       { name: 'Ascuas', power: 40, pp: 25, maxPp: 25, type: 'Fuego' },
       { name: 'Arañazo', power: 40, pp: 35, maxPp: 35, type: 'Normal' },
@@ -58,6 +66,8 @@ const INITIAL_STARTERS = [
     level: 15,
     hp: 44,
     maxHp: 44,
+    status: null,
+    statModifiers: {},
     moves: [
       { name: 'Pistola Agua', power: 40, pp: 25, maxPp: 25, type: 'Agua' },
       { name: 'Placaje', power: 40, pp: 35, maxPp: 35, type: 'Normal' },
@@ -78,6 +88,24 @@ function getStarterId(key, gymIndex) {
   const starterIndex = ['bulbasaur', 'charmander', 'squirtle'].indexOf(key)
   const tier = gymIndex < 2 ? 0 : gymIndex < 5 ? 1 : 2
   return STARTER_IDS_BY_TIER[tier][starterIndex]
+}
+
+function restorePokemon(pokemon, levelIncrease = 0, maxHpIncrease = 0) {
+  const updatedLevel = pokemon.level + levelIncrease
+  const updatedMaxHp = pokemon.maxHp + maxHpIncrease
+
+  return {
+    ...pokemon,
+    level: updatedLevel,
+    maxHp: updatedMaxHp,
+    hp: updatedMaxHp,
+    status: null,
+    statModifiers: {},
+    moves: (pokemon.moves || []).map((move) => ({
+      ...move,
+      pp: move.maxPp
+    }))
+  }
 }
 
 function getProfileSprite(profile, spriteType, gender, isPikachu) {
@@ -111,11 +139,13 @@ function applyProfile(pokemon, profile, gender) {
 
 export function useBattle({ gender = 'male' } = {}) {
   const [currentGymIndex, setCurrentGymIndex] = useState(0)
-  const [playerTeam, setPlayerTeam] = useState(INITIAL_STARTERS)
+  const [playerTeam, setPlayerTeam] = useState(() =>
+    INITIAL_STARTERS.map((pokemon) => restorePokemon(pokemon))
+  )
   const [activePlayerIndex, setActivePlayerIndex] = useState(0)
   const [activeOpponentIndex, setActiveOpponentIndex] = useState(0)
   const [opponentTeam, setOpponentTeam] = useState([])
-  const [potionsRemaining, setPotionsRemaining] = useState(6)
+  const [potionsRemaining, setPotionsRemaining] = useState(DEFAULT_POTION_COUNT)
   const [battleStatus, setBattleStatus] = useState('intro')
   const [combatLog, setCombatLog] = useState([])
 
@@ -127,76 +157,87 @@ export function useBattle({ gender = 'male' } = {}) {
     setCombatLog((prev) => [message, ...prev.slice(0, 8)])
   }, [])
 
-  const loadLeaderTeam = useCallback(
-    async (signal) => {
-      if (!currentGymLeader) return
-      const leaderIds = currentGymLeader.pokemonTeam.map((p) => p.id)
-      const profiles = await fetchMultiplePokemon(leaderIds, signal)
-      const profileMap = profiles.reduce((map, profile) => {
-        map[profile.id] = profile
-        return map
-      }, {})
+  useEffect(() => {
+    if (!currentGymLeader) return undefined
 
-      const builtTeam = currentGymLeader.pokemonTeam.map((leaderPoke) => {
-        const profile = profileMap[leaderPoke.id]
-        const maxHp = 35 + leaderPoke.level * 3
-        return {
-          id: leaderPoke.id,
-          name: leaderPoke.name,
-          level: leaderPoke.level,
-          hp: maxHp,
-          maxHp,
-          type: profile?.typeDisplay || 'Normal',
-          sprites: {
-            front: profile?.sprites?.front || null
-          },
-          moves: [
-            { name: 'Placaje', power: 35, pp: 30, maxPp: 30, type: 'Normal' },
-            { name: 'Ataque Furia', power: 45, pp: 20, maxPp: 20, type: 'Normal' }
-          ]
+    const controller = new AbortController()
+    const leaderIds = currentGymLeader.pokemonTeam.map((pokemon) => pokemon.id)
+
+    fetchMultiplePokemon(leaderIds, controller.signal)
+      .then((profiles) => {
+        const profileMap = profiles.reduce((map, profile) => {
+          map[profile.id] = profile
+          return map
+        }, {})
+
+        const builtTeam = currentGymLeader.pokemonTeam.map((leaderPokemon) => {
+          const profile = profileMap[leaderPokemon.id]
+          const maxHp = 35 + leaderPokemon.level * 3
+          return {
+            id: leaderPokemon.id,
+            name: leaderPokemon.name,
+            level: leaderPokemon.level,
+            hp: maxHp,
+            maxHp,
+            type: profile?.typeDisplay || 'Normal',
+            sprites: {
+              front: profile?.sprites?.front || null
+            },
+            moves: [
+              { name: 'Placaje', power: 35, pp: 30, maxPp: 30, type: 'Normal' },
+              { name: 'Ataque Furia', power: 45, pp: 20, maxPp: 20, type: 'Normal' }
+            ]
+          }
+        })
+
+        setOpponentTeam(builtTeam)
+        setActiveOpponentIndex(0)
+      })
+      .catch((error) => {
+        if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+          setOpponentTeam([])
         }
       })
 
-      setOpponentTeam(builtTeam)
-      setActiveOpponentIndex(0)
-    },
-    [currentGymLeader]
-  )
-
-  const syncPlayerProfiles = useCallback(
-    async (signal) => {
-      const idsToFetch = playerTeam.map((p) => getStarterId(p.key, currentGymIndex))
-      const profiles = await fetchMultiplePokemon(idsToFetch, signal)
-      const profileMap = profiles.reduce((map, profile) => {
-        map[profile.id] = profile
-        return map
-      }, {})
-
-      setPlayerTeam((prevTeam) =>
-        prevTeam.map((p) => {
-          const targetId = getStarterId(p.key, currentGymIndex)
-          const profile = profileMap[targetId]
-          return applyProfile(p, profile, gender)
-        })
-      )
-    },
-    [currentGymIndex, playerTeam, gender]
-  )
+    return () => controller.abort()
+  }, [currentGymLeader])
 
   useEffect(() => {
     const controller = new AbortController()
-    loadLeaderTeam(controller.signal)
-    return () => controller.abort()
-  }, [loadLeaderTeam])
+    const idsToFetch = INITIAL_STARTERS.map((pokemon) =>
+      getStarterId(pokemon.key, currentGymIndex)
+    )
 
-  useEffect(() => {
-    const controller = new AbortController()
-    syncPlayerProfiles(controller.signal)
+    fetchMultiplePokemon(idsToFetch, controller.signal)
+      .then((profiles) => {
+        const profileMap = profiles.reduce((map, profile) => {
+          map[profile.id] = profile
+          return map
+        }, {})
+
+        setPlayerTeam((prevTeam) =>
+          prevTeam.map((pokemon) => {
+            const targetId = getStarterId(pokemon.key, currentGymIndex)
+            const profile = profileMap[targetId]
+            return applyProfile(pokemon, profile, gender)
+          })
+        )
+      })
+      .catch((error) => {
+        if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+          return
+        }
+      })
+
     return () => controller.abort()
-  }, [currentGymIndex, syncPlayerProfiles])
+  }, [currentGymIndex, gender])
 
   const selectLeadPokemon = useCallback((index) => {
     setActivePlayerIndex(index)
+    setPlayerTeam((prevTeam) =>
+      prevTeam.map((pokemon) => restorePokemon(pokemon))
+    )
+    setPotionsRemaining(DEFAULT_POTION_COUNT)
     setBattleStatus('battle')
   }, [])
 
@@ -303,34 +344,37 @@ export function useBattle({ gender = 'male' } = {}) {
     const nextIndex = currentGymIndex + 1
     setCurrentGymIndex(nextIndex)
 
-    setPlayerTeam((prev) =>
-      prev.map((poke) => ({
-        ...poke,
-        hp: poke.maxHp,
-        level: poke.level + 3,
-        maxHp: poke.maxHp + 8,
-        moves: poke.moves.map((m) => ({ ...m, pp: m.maxPp }))
-      }))
+    setPlayerTeam((prevTeam) =>
+      prevTeam.map((pokemon) => restorePokemon(pokemon, 3, 8))
     )
+    setPotionsRemaining(DEFAULT_POTION_COUNT)
+    setActivePlayerIndex(0)
+    setActiveOpponentIndex(0)
+    setCombatLog([])
 
     if (nextIndex === 2 || nextIndex === 5) {
       setBattleStatus('evolution')
-    } else {
-      setBattleStatus('intro')
+      return
     }
+
+    setBattleStatus('intro')
   }, [currentGymIndex])
 
   const resetBattle = useCallback(() => {
     setCurrentGymIndex(0)
-    setPlayerTeam(INITIAL_STARTERS)
+    setPlayerTeam(INITIAL_STARTERS.map((pokemon) => restorePokemon(pokemon)))
     setActivePlayerIndex(0)
     setActiveOpponentIndex(0)
-    setPotionsRemaining(6)
+    setPotionsRemaining(DEFAULT_POTION_COUNT)
     setCombatLog([])
     setBattleStatus('intro')
   }, [])
 
   const continueIntro = useCallback(() => {
+    setPlayerTeam((prevTeam) =>
+      prevTeam.map((pokemon) => restorePokemon(pokemon))
+    )
+    setPotionsRemaining(DEFAULT_POTION_COUNT)
     setBattleStatus('select_lead')
   }, [])
 

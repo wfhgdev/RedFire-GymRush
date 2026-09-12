@@ -8,17 +8,12 @@ export function usePokemon(pokemonIdentifier) {
 
   const isMultiple = Array.isArray(pokemonIdentifier)
 
-  const loadPokemon = useCallback(() => {
+  useEffect(() => {
     if (!pokemonIdentifier || (isMultiple && pokemonIdentifier.length === 0)) {
-      setData(isMultiple ? [] : null)
-      setLoading(false)
       return undefined
     }
 
     const controller = new AbortController()
-    setLoading(true)
-    setError(null)
-
     const request = isMultiple
       ? fetchMultiplePokemon(pokemonIdentifier, controller.signal)
       : fetchPokemonData(pokemonIdentifier, controller.signal)
@@ -38,17 +33,38 @@ export function usePokemon(pokemonIdentifier) {
     return () => controller.abort()
   }, [pokemonIdentifier, isMultiple])
 
-  useEffect(() => {
-    const cancelEffect = loadPokemon()
-    return () => {
-      if (cancelEffect) cancelEffect()
+  const refetch = useCallback(() => {
+    if (!pokemonIdentifier || (isMultiple && pokemonIdentifier.length === 0)) {
+      setData(isMultiple ? [] : null)
+      setLoading(false)
+      return
     }
-  }, [loadPokemon])
+
+    setLoading(true)
+    setError(null)
+
+    const controller = new AbortController()
+    const request = isMultiple
+      ? fetchMultiplePokemon(pokemonIdentifier, controller.signal)
+      : fetchPokemonData(pokemonIdentifier, controller.signal)
+
+    request
+      .then((result) => {
+        setData(result)
+        setLoading(false)
+      })
+      .catch((err) => {
+        if (err.name !== 'CanceledError' && err.name !== 'AbortError') {
+          setError('Error al obtener datos del Pokémon')
+          setLoading(false)
+        }
+      })
+  }, [pokemonIdentifier, isMultiple])
 
   return {
     pokemon: data,
     loading,
     error,
-    refetch: loadPokemon
+    refetch
   }
 }
