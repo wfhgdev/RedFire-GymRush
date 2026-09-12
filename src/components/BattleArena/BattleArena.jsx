@@ -168,13 +168,12 @@ export default function BattleArena({
               type="button"
               onClick={onUsePotion}
               disabled={potionsRemaining <= 0}
-              className={`py-3 px-3 font-bold rounded border-2 text-xs shadow cursor-pointer active:scale-95 transition-transform focus-visible:outline-2 focus-visible:outline-yellow-400 ${
-                potionsRemaining > 0
+              className={`py-3 px-3 font-bold rounded border-2 text-xs shadow cursor-pointer active:scale-95 transition-transform focus-visible:outline-2 focus-visible:outline-yellow-400 ${potionsRemaining > 0
                   ? 'bg-amber-700 hover:bg-amber-600 text-white border-amber-500'
                   : 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
-              }`}
+                }`}
             >
-              MOCHILA ({potionsRemaining})
+              POCIÓN ({potionsRemaining})
             </button>
 
             <button
@@ -194,11 +193,10 @@ export default function BattleArena({
                   type="button"
                   onClick={() => handleSelectMove(idx)}
                   disabled={move.pp <= 0}
-                  className={`p-2 font-bold rounded border text-[11px] text-left flex flex-col justify-between transition-transform cursor-pointer focus-visible:outline-2 focus-visible:outline-yellow-400 ${
-                    move.pp > 0
+                  className={`p-2 font-bold rounded border text-[11px] text-left flex flex-col justify-between transition-transform cursor-pointer focus-visible:outline-2 focus-visible:outline-yellow-400 ${move.pp > 0
                       ? 'bg-slate-800 hover:bg-red-900/80 text-white border-slate-600 active:scale-95'
                       : 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   <span className="truncate">{move.name}</span>
                   <span className="text-[9px] text-slate-400 self-end">
