@@ -1,3 +1,12 @@
+import brockSprite from '../assets/svg/Brock.svg'
+import mistySprite from '../assets/svg/Misty.svg'
+import surgeSprite from '../assets/svg/Surge.svg'
+import erikaSprite from '../assets/svg/Erika.svg'
+import kogaSprite from '../assets/svg/Koga.svg'
+import sabrinaSprite from '../assets/svg/Sabrina.svg'
+import blaineSprite from '../assets/svg/Blaine.svg'
+import giovanniSprite from '../assets/svg/Giovanni.svg'
+
 import brookBackground from '../assets/png/BrookBackground.png'
 import mistyBackground from '../assets/png/MistyBattleground.png'
 import surgeBackground from '../assets/png/SurgeBackground.png'
@@ -11,8 +20,10 @@ export const GYM_LEADERS = [
   {
     id: 1,
     name: 'Brock',
+    badgeName: 'Medalla Roca',
+    city: 'Ciudad Plateada',
     title: 'Líder de Gimnasio Plateada',
-    spriteHiRes: '/assets/leaders/brock_lg.png',
+    sprite: brockSprite,
     backgroundImg: brookBackground,
     dialogue:
       '¡Soy Brock! ¡Soy el Líder del Gimnasio de Ciudad Plateada! Creo firmemente en la resistencia de la roca y en la fuerza de mis Pokémon de tipo Roca. ¡Mi defensa es impenetrable! ¡Demuéstrame de qué estás hecho!',
@@ -24,8 +35,10 @@ export const GYM_LEADERS = [
   {
     id: 2,
     name: 'Misty',
+    badgeName: 'Medalla Cascada',
+    city: 'Ciudad Celeste',
     title: 'Líder de Gimnasio Celeste',
-    spriteHiRes: '/assets/leaders/misty_lg.png',
+    sprite: mistySprite,
     backgroundImg: mistyBackground,
     dialogue:
       '¡Hola! ¡Soy Misty! ¿Eres un entrenador novato? Los Pokémon de tipo Agua pueden adaptarse a cualquier situación. ¡Prepárate para ahogarte en mi estrategia!',
@@ -37,8 +50,10 @@ export const GYM_LEADERS = [
   {
     id: 3,
     name: 'Lt. Surge',
+    badgeName: 'Medalla Trueno',
+    city: 'Ciudad Carmín',
     title: 'Líder de Gimnasio Carmín',
-    spriteHiRes: '/assets/leaders/surge_lg.png',
+    sprite: surgeSprite,
     backgroundImg: surgeBackground,
     dialogue:
       '¡Hey, chico! ¡Estás en el ejército ahora! ¡Los Pokémon eléctricos me salvaron en la guerra! ¡Te voy a electrocutar con mi velocidad de rayo!',
@@ -51,8 +66,10 @@ export const GYM_LEADERS = [
   {
     id: 4,
     name: 'Erika',
+    badgeName: 'Medalla Arcoíris',
+    city: 'Ciudad Azulona',
     title: 'Líder de Gimnasio Azulona',
-    spriteHiRes: '/assets/leaders/erika_lg.png',
+    sprite: erikaSprite,
     backgroundImg: erikaBackground,
     dialogue:
       'Hola... Qué día tan agradable. Me llamo Erika y soy la Líder del Gimnasio de Ciudad Azulona. Cultivo Pokémon de tipo Planta... Mi estilo es tranquilo, pero ten cuidado con mis esporas.',
@@ -65,8 +82,10 @@ export const GYM_LEADERS = [
   {
     id: 5,
     name: 'Koga',
+    badgeName: 'Medalla Alma',
+    city: 'Ciudad Fucsia',
     title: 'Líder de Gimnasio Fucsia',
-    spriteHiRes: '/assets/leaders/koga_lg.png',
+    sprite: kogaSprite,
     backgroundImg: kogaBackground,
     dialogue:
       '¡Fwahahaha! ¡Un intruso en mi gimnasio ninja! Los Pokémon de tipo Veneno desgastarán a tu equipo lentamente. ¡Siente la agonía de las toxinas secretas de los ninjas!',
@@ -80,8 +99,10 @@ export const GYM_LEADERS = [
   {
     id: 6,
     name: 'Sabrina',
+    badgeName: 'Medalla Pantano',
+    city: 'Ciudad Azafrán',
     title: 'Líder de Gimnasio Azafrán',
-    spriteHiRes: '/assets/leaders/sabrina_lg.png',
+    sprite: sabrinaSprite,
     backgroundImg: sabrinaBackground,
     dialogue:
       'Tuve una visión de tu llegada... No me gusta pelear, pero mi telequinesis y mis Pokémon Psíquicos doblegarán tu mente. El destino ya decidió que yo ganaré esta batalla.',
@@ -95,8 +116,10 @@ export const GYM_LEADERS = [
   {
     id: 7,
     name: 'Blaine',
+    badgeName: 'Medalla Volcán',
+    city: 'Isla Canela',
     title: 'Líder de Gimnasio Canela',
-    spriteHiRes: '/assets/leaders/blaine_lg.png',
+    sprite: blaineSprite,
     backgroundImg: blaineBackground,
     dialogue:
       '¡Hah! ¡Soy Blaine, el maestro ardiente del Gimnasio Canela! ¡Mis Pokémon de tipo Fuego van a incinerar tus sueños de medalla! ¡Espero que tengas listos tus antiquemaduras!',
@@ -110,8 +133,10 @@ export const GYM_LEADERS = [
   {
     id: 8,
     name: 'Giovanni',
+    badgeName: 'Medalla Tierra',
+    city: 'Ciudad Verde',
     title: 'Líder de Gimnasio Verde',
-    spriteHiRes: '/assets/leaders/giovanni_lg.png',
+    sprite: giovanniSprite,
     backgroundImg: giovanniBackground,
     dialogue:
       '¡Bienvenidos a mi verdadero cubil! Fui el líder del Team Rocket, y ahora verás por qué soy el Líder definitivo de Ciudad Verde. La tierra misma temblará ante el poder de mis Pokémon Tipo Tierra. ¡Este es tu fin!',

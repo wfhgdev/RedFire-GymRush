@@ -1,18 +1,9 @@
-import api from './api'
+import { fetchPokemonData, fetchMultiplePokemon } from './pokeApi'
 
 export async function fetchPokemonProfile(id, signal) {
-  try {
-    const response = await api.get(`/pokemon/${id}`, { signal })
-    return response.data
-  } catch (error) {
-    if (error.name === 'CanceledError' || error.name === 'AbortError') throw error
-    return null
-  }
+  return fetchPokemonData(id, signal)
 }
 
 export async function fetchPokemonProfiles(ids, signal) {
-  const profiles = await Promise.all(
-    ids.map((id) => fetchPokemonProfile(id, signal))
-  )
-  return profiles.filter(Boolean)
+  return fetchMultiplePokemon(ids, signal)
 }

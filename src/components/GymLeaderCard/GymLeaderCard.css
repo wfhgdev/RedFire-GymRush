@@ -1,0 +1,5 @@
+.gym-leader-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}

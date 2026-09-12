@@ -1,7 +1,4 @@
-.home-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
+.home-screen-card {
+  width: 100%;
+  max-width: 48rem;
 }

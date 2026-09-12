@@ -1,7 +1,4 @@
-.leaderboard-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
+.leaderboard-container {
+  width: 100%;
+  max-width: 48rem;
 }
