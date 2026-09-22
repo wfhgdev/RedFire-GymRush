@@ -13,6 +13,7 @@
 [![Axios](https://img.shields.io/badge/Axios-1.x-5A29E4?logo=axios&logoColor=white)](https://axios-http.com/)
 [![ESLint](https://img.shields.io/badge/ESLint-10-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
 [![WCAG AA](https://img.shields.io/badge/Accessibility-WCAG_2.1_AA-success?logo=w3c&logoColor=white)](https://www.w3.org/WAI/standards-guidelines/wcag/)
+[![Accessibility Score](https://thefrontkit.com/badge/a11y/aHR0cHM6Ly9neW0tcnVzaC52ZXJjZWwuYXBwLw==)](https://thefrontkit.com/tools/accessibility-badge)
 [![Vercel Deployment](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel&logoColor=white)](https://gym-rush.vercel.app/)
 
 🎮 **[Jugar en Vivo / Demo](https://gym-rush.vercel.app/)**
