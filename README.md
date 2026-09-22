@@ -25,7 +25,7 @@
 
 **FireRed Gym Rush** es una aplicación web interactiva construida con **React 19**, **Vite** y **TailwindCSS**, diseñada como un desafío lineal tipo *Boss Rush*. Los jugadores asumen el rol de un entrenador Pokémon (Red o Leaf) y deben enfrentar consecutivamente a los **8 Líderes de Gimnasio de la región de Kanto**.
 
-El proyecto combina la estética clásica de Game Boy Advance (pixel art, scanlines CRT, paleta de colores retro y tipografía `'Press Start 2P'`) con una arquitectura frontend moderna y modular, conectada a la [PokéAPI](https://pokeapi.co/) mediante Axios para la sincronización dinámica de estadísticas y sprites oficiales.
+El proyecto combina la estética clásica de Game Boy Advance (pixel art, paleta de colores retro) con una arquitectura frontend moderna y modular, conectada a la [PokéAPI](https://pokeapi.co/) mediante Axios para la sincronización dinámica de estadísticas y sprites oficiales.
 
 ---
 
@@ -39,7 +39,7 @@ El proyecto combina la estética clásica de Game Boy Advance (pixel art, scanli
 ### 🐢 Equipo de Iniciales y Sistema de Hitos de Evolución
 El jugador inicia su aventura con un equipo fijo de 4 Pokémon: **Pikachu**, **Bulbasaur**, **Charmander** y **Squirtle**. A medida que avanza en el circuito de gimnasios, el equipo experimenta evoluciones por hitos:
 
-| Etapa de Gimnasios | Nivel Promedio | Bulbasaur | Charmander | Squirtle | Pikachu |
+| Etapa de Gimnasios | Nivel Promedio | Pokemon1 | Pokemon2 | Pokemon3 | Pokemon4 |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Gimnasios 1 – 2** (Brock y Misty) | Nv. 15 | **Bulbasaur** | **Charmander** | **Squirtle** | **Pikachu** |
 | **Gimnasios 3 – 5** (Surge, Erika y Koga) | Nv. 21 – 27 | **Ivysaur** | **Charmeleon** | **Wartortle** | **Pikachu** |
